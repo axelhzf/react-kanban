@@ -8,7 +8,7 @@ class Task extends Component {
     task: PropTypes.object.isRequired,
     onMoveTask: PropTypes.func,
     onDeleteTask: PropTypes.func,
-    onReorderTask: PropTypes.func,
+    onMoveTaskNextToTask: PropTypes.func,
 
     connectDragSource: PropTypes.func.isRequired,
     isDragging: PropTypes.bool.isRequired
@@ -72,8 +72,8 @@ const dropSource = {
       return;
     }
 
-    if (props.onReorderTask) {
-      props.onReorderTask(monitor.getItem(), props.task);
+    if (props.onMoveTaskNextToTask) {
+      props.onMoveTaskNextToTask(monitor.getItem(), props.task);
     }
   }
 

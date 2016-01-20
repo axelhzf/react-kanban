@@ -9,7 +9,9 @@
     "react-d3-components": "^0.6.1",
     "react-dnd": "^2.0.2",
     "react-dnd-html5-backend": "^2.0.2",
-    "react-dom": "^0.14.6"
+    "react-dom": "^0.14.6",
+    "react-redux": "^4.0.6",
+    "redux": "^3.0.5"
   },
   "devDependencies": {
     "babel-core": "^6.4.0",

@@ -5,7 +5,7 @@ class Column extends Component {
 
   static propTypes = {
     column: PropTypes.object.isRequired,
-    onChangeColumn: PropTypes.func,
+    onMoveTaskToColumn: PropTypes.func,
 
     connectDropTarget: PropTypes.func.isRequired,
     isOver: PropTypes.bool.isRequired,
@@ -49,8 +49,8 @@ const boxTarget = {
       return;
     }
 
-    if (props.onChangeColumn) {
-      props.onChangeColumn(task, column);
+    if (props.onMoveTaskToColumn) {
+      props.onMoveTaskToColumn(task, column);
     }
 
   }
