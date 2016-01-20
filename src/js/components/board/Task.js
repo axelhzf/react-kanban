@@ -65,7 +65,7 @@ const dropSource = {
   hover(props, monitor) {
     const dragId = monitor.getItem().id;
     const hoverId = props.task.get("id");
-
+    
     if (dragId === hoverId) {
       return;
     }

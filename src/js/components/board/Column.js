@@ -51,6 +51,9 @@ const boxTarget = {
 
     if (props.onMoveTaskToColumn) {
       props.onMoveTaskToColumn(task, column);
+
+      //performance?
+      monitor.getItem().column = column.get("id");
     }
 
   }

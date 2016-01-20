@@ -1,6 +1,6 @@
 import { compose, createStore } from 'redux';
-import persistState from 'redux-localstorage'
 import Immutable from "immutable";
+import DevTools from "../DevTools";
 
 const initialState = Immutable.fromJS({
   columns: [
@@ -46,19 +46,24 @@ const reducerFunctions = {
   },
 
   "MOVE_TASK_TO_COLUMN": (state, action) => {
-    const {task, column} = action;
+    const {column} = action;
+    const taskJs = action.task;
 
-    var tasks = state.get("tasks");
-    const taskIndex = tasks.findIndex((t) => t.get("id") === task.id);
-    const newState = state.updateIn(["tasks", taskIndex, "column"], value => column.get("id"));
+    const tasks = state.get("tasks");
+    const task = tasks.find(task => task.get("id") === taskJs.id);
+    const taskIndex = tasks.findIndex((t) => t === task);
+    const newTask = task.set("column", column.get("id"));
+
+    const newState = state.updateIn(["tasks"], tasks => {
+      return tasks.splice(taskIndex, 1).push(newTask)
+    });
 
     return newState;
   },
 
   "MOVE_TASK_NEXT_TO_TASK": (state, action) => {
-    //fromTask is not immutable (conflict with react dnd)
     var {toTask} = action;
-    var fromTaskJs = action.fromTask;
+    var fromTaskJs = action.fromTask; //task is not immutable (fuck react dnd)
 
     const tasks = state.get("tasks");
 
@@ -75,4 +80,8 @@ const reducerFunctions = {
 
 };
 
-export default createStore(reducer)
+const finalCreateStore = compose(
+  DevTools.instrument()
+)(createStore);
+
+export default finalCreateStore(reducer)

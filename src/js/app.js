@@ -7,10 +7,14 @@ import { Provider } from 'react-redux';
 
 import BoardPage from "./pages/BoardPage";
 import store from "./model/store";
+import DevTools from "./DevTools";
 
 const root = (
   <Provider store={store}>
-    <BoardPage/>
+    <div>
+      <BoardPage/>
+      <DevTools/>
+    </div>
   </Provider>
 );
 ReactDom.render(root, document.getElementById("content"));
