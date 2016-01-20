@@ -1,4 +1,5 @@
-import { createStore } from 'redux';
+import { compose, createStore } from 'redux';
+import persistState from 'redux-localstorage'
 
 const initialState = {
   columns: [
@@ -81,5 +82,7 @@ const reducerFunctions = {
 
 };
 
-
-export default createStore(reducer)
+const createPersistentStore = compose(
+  persistState()
+)(createStore);
+export default createPersistentStore(reducer)
