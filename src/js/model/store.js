@@ -1,7 +1,8 @@
 import { compose, createStore } from 'redux';
 import persistState from 'redux-localstorage'
+import Immutable from "immutable";
 
-const initialState = {
+const initialState = Immutable.fromJS({
   columns: [
     {id: "backlog", name: "Backlog"},
     {id: "progress", name: "In progress"},
@@ -12,7 +13,7 @@ const initialState = {
     {id: 2, name: "B", column: "backlog"},
     {id: 3, name: "C", column: "progress"}
   ]
-};
+});
 
 function reducer(state = initialState, action) {
   const fn = reducerFunctions[action.type];
@@ -27,62 +28,51 @@ function reducer(state = initialState, action) {
 const reducerFunctions = {
 
   "CREATE_TASK": (state, action) => {
-    const currentMaxId = _.max(_.map(state.tasks, "id")) || 1;
-    const nextId = currentMaxId + 1;
-    const newTask = _.assign({}, action.task, {id: nextId, column: "backlog"});
+    const taskWithMaxId = state.get("tasks").maxBy(task => task.get("id"));
+    const currentMaxId = taskWithMaxId ? taskWithMaxId.get("id") : 1;
 
-    let tasks = [...state.tasks, newTask];
-    return _.assign({}, state, {tasks});
+    const nextId = currentMaxId + 1;
+
+    const task = Immutable.Map(action.task)
+      .merge({id: nextId, column: "backlog"});
+
+    return state.updateIn(["tasks"], tasks => tasks.push(task));
   },
 
   "DELETE_TASK": (state, action) => {
-    const task = action.task;
-    const taskIndex = _.findIndex(state.tasks, {id: task.id});
-
-    let tasks =  [
-      ...state.tasks.slice(0, taskIndex),
-      ...state.tasks.slice(taskIndex + 1)
-    ];
-
-    return _.assign({}, state, {tasks});
+    const taskToDelete = action.task;
+    const newState = state.updateIn(["tasks"], tasks => tasks.filter(task => task !== taskToDelete));
+    return newState;
   },
 
   "MOVE_TASK_TO_COLUMN": (state, action) => {
     const {task, column} = action;
-    const taskIndex = _.findIndex(state.tasks, {id: task.id});
 
-    let tasks =  [
-      ...state.tasks.slice(0, taskIndex),
-      _.assign({}, task, {column: column.id}),
-      ...state.tasks.slice(taskIndex + 1)
-    ];
+    var tasks = state.get("tasks");
+    const taskIndex = tasks.findIndex((t) => t.get("id") === task.id);
+    const newState = state.updateIn(["tasks", taskIndex, "column"], value => column.get("id"));
 
-    return _.assign({}, state, {tasks});
+    return newState;
   },
 
   "MOVE_TASK_NEXT_TO_TASK": (state, action) => {
-    const {tasks} = state;
-    const {fromTask, toTask} = action;
+    //fromTask is not immutable (conflict with react dnd)
+    var {toTask} = action;
+    var fromTaskJs = action.fromTask;
 
-    const toTaskIndex = _.findIndex(tasks, {id : toTask.id});
-    const fromTaskIndex = _.findIndex(tasks, {id: fromTask.id});
+    const tasks = state.get("tasks");
 
-    var newTasks = [
-      ...tasks.slice(0, fromTaskIndex),
-      ...tasks.slice(fromTaskIndex + 1)
-    ];
-    newTasks = [
-      ...newTasks.slice(0, toTaskIndex),
-      fromTask,
-      ...newTasks.slice(toTaskIndex)
-    ];
+    const toTaskIndex = tasks.indexOf(toTask);
+    const fromTaskIndex = tasks.findIndex((task) => task.get("id") === fromTaskJs.id);
+    const fromTask = tasks.get(fromTaskIndex);
 
-    return _.assign({}, state, {tasks: newTasks});
+    const newState = state.updateIn(["tasks"], tasks => {
+      return tasks.splice(fromTaskIndex, 1).splice(toTaskIndex, 0, fromTask);
+    });
+
+    return newState;
   }
 
 };
 
-const createPersistentStore = compose(
-  persistState()
-)(createStore);
-export default createPersistentStore(reducer)
+export default createStore(reducer)

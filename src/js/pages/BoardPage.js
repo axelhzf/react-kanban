@@ -1,6 +1,7 @@
-import React from "react";
+import React, {PropTypes} from "react";
 import _ from "lodash";
 import {connect} from "react-redux";
+import IPropTypes from "immutable-props";
 
 import Board from "../components/board/Board";
 import Column from "../components/board/Column";
@@ -9,31 +10,47 @@ import AddTaskInput from "../components/board/AddTaskInput";
 
 class BoardPage extends React.Component {
 
+  static propTypes = {
+    columns: IPropTypes.List.isRequired,
+    tasks: IPropTypes.List.isRequired,
+
+    onCreateTask: PropTypes.func,
+    onDeleteTask: PropTypes.func,
+    onMoveTaskToColumn: PropTypes.func,
+    onMoveTaskNextToTask: PropTypes.func
+  };
+
+  renderTasks(tasks) {
+    if (!tasks) return;
+
+    const {onDeleteTask, onMoveTaskNextToTask} = this.props;
+
+    return tasks.map(task => (
+      <Task key={task.get("id")}
+            task={task}
+            onDeleteTask={onDeleteTask}
+            onMoveTaskNextToTask={onMoveTaskNextToTask}
+      />
+    ));
+  }
+
   render() {
     const {
-      columns, tasks,
-      onCreateTask, onDeleteTask,
-      onMoveTaskToColumn, onMoveTaskNextToTask
+      columns,tasks,
+      onCreateTask,
+      onMoveTaskToColumn
       } = this.props;
 
-    const tasksByColumns = _.groupBy(tasks, "column");
+    const tasksByColumns = tasks.groupBy((task) => task.get("column"));
 
     return (
       <div>
         <AddTaskInput onAddTask={onCreateTask}/>
         <Board>
           {
-            _.map(columns, (column) => (
-              <Column key={column.id} column={column} onMoveTaskToColumn={onMoveTaskToColumn} >
-                {
-                  _.map(tasksByColumns[column.id], (task) => (
-                    <Task key={task.id}
-                          task={task}
-                          onDeleteTask={onDeleteTask}
-                          onMoveTaskNextToTask={onMoveTaskNextToTask}
-                    />
-                  ))
-                }
+            columns.map(column => (
+              <Column key={column.get("id")} column={column} onMoveTaskToColumn={onMoveTaskToColumn}>
+                { this.renderTasks(tasksByColumns.get(column.get("id"))) }
               </Column>
             ))
           }
@@ -46,8 +63,8 @@ class BoardPage extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    columns: state.columns,
-    tasks: state.tasks
+    columns: state.get("columns"),
+    tasks: state.get("tasks")
   }
 };
 

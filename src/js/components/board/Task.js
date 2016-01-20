@@ -1,11 +1,13 @@
 import React, { PropTypes, Component } from 'react';
 import {findDOMNode} from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
+import IPropTypes from "immutable-props";
 
 class Task extends Component {
 
   static propTypes = {
-    task: PropTypes.object.isRequired,
+    task: IPropTypes.Map.isRequired,
+
     onMoveTask: PropTypes.func,
     onDeleteTask: PropTypes.func,
     onMoveTaskNextToTask: PropTypes.func,
@@ -23,12 +25,8 @@ class Task extends Component {
     }
   };
 
-  componentDidUmount() {
-    console.log("unmount task", this.props.task.id);
-  }
-
   render() {
-    const { isDragging, connectDragSource, connectDropTarget, canDrop } = this.props;
+    const { isDragging, connectDragSource, connectDropTarget } = this.props;
     const { task } = this.props;
 
     var element;
@@ -39,7 +37,7 @@ class Task extends Component {
         <div className="task">
 
           <div className="task-name">
-            {task.name}
+            {task.get("name")}
           </div>
 
           <div className="task-actions">
@@ -66,7 +64,7 @@ const dropSource = {
 
   hover(props, monitor) {
     const dragId = monitor.getItem().id;
-    const hoverId = props.task.id;
+    const hoverId = props.task.get("id");
 
     if (dragId === hoverId) {
       return;
@@ -80,18 +78,18 @@ const dropSource = {
 };
 
 const collectDrop = (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  canDrop: monitor.canDrop()
+  connectDropTarget: connect.dropTarget()
 });
 
 const dragSource = {
+
   beginDrag(props) {
     const {task} = props;
-    return task;
+    return task.toJS();
   },
 
   isDragging(props, monitor) {
-    return props.task.id === monitor.getItem().id;
+    return props.task.get("id") === monitor.getItem().id;
   }
 
 };

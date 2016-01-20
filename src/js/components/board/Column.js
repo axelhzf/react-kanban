@@ -24,7 +24,7 @@ class Column extends Component {
       connectDropTarget(
         <div className="column">
           <div className="column-info">
-            {column.name}
+            {column.get("name")}
           </div>
           <div className="column-content">
             {children}
@@ -45,7 +45,7 @@ const boxTarget = {
     const task = monitor.getItem();
     const column = props.column;
 
-    if (task.column === column.id) {
+    if (task.column === column.get("id")) {
       return;
     }
 
