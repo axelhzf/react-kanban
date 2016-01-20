@@ -31,7 +31,7 @@ export default class BoardPage extends React.Component {
     this.setState({tasks: taskDao.findAll()});
   };
 
-  onMoveTask = (task, column) => {
+  onChangeColumn = (task, column) => {
     task.column = column.id;
     taskDao.update(task);
   };
@@ -44,26 +44,34 @@ export default class BoardPage extends React.Component {
     taskDao.remove(task);
   };
 
+  onReorderTask = (dragTask, hoverTask) => {
+    taskDao.reorder(dragTask, hoverTask);
+  };
+
   render() {
     const {columns, tasks} = this.state;
     const tasksByColumns = _.groupBy(tasks, "column");
 
     return (
       <div>
+        <AddTaskInput onAddTask={this.onAddTask}/>
         <Board>
           {
             _.map(columns, (column) => (
-              <Column key={column.id} column={column}>
+              <Column key={column.id} column={column} onChangeColumn={this.onChangeColumn}>
                 {
                   _.map(tasksByColumns[column.id], (task) => (
-                    <Task key={task.id} task={task} onMoveTask={this.onMoveTask} onDeleteTask={this.onDeleteTask}/>
+                    <Task key={task.id}
+                          task={task}
+                          onDeleteTask={this.onDeleteTask}
+                          onReorderTask={this.onReorderTask}
+                    />
                   ))
                 }
               </Column>
             ))
           }
         </Board>
-        <AddTaskInput onAddTask={this.onAddTask}/>
       </div>
     )
   }

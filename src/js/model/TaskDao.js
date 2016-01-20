@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Emitter from "component-emitter";
 
 class TaskDao extends Emitter {
@@ -24,12 +25,25 @@ class TaskDao extends Emitter {
   }
 
   create(task) {
-    this.tasks.push({id: this.tasks.length + 1, name: task.name, column: "backlog"});
+    const currentMaxId = _.max(_.map(this.tasks, "id")) || 1;
+    const nextId = currentMaxId + 1;
+    this.tasks.push({id: nextId, name: task.name, column: "backlog"});
     this._save();
   }
 
   remove(task) {
     this.tasks = _.without(this.tasks, task);
+    this._save();
+  }
+
+  reorder(dragTask, hoverTask) {
+    console.log("hover task", hoverTask);
+    const hoverTaskIndex = _.findIndex(this.tasks, {id : hoverTask.id});
+    this.tasks = _.without(this.tasks, dragTask);
+    console.log(hoverTaskIndex);
+    this.tasks.splice(hoverTaskIndex, 0, dragTask);
+    dragTask.column = hoverTask.column;
+
     this._save();
   }
 

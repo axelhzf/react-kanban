@@ -26,9 +26,11 @@ export default class AddTaskInput extends Component {
     const {name} = this.state;
     const submitEnabled = name.length > 0;
     return (
-      <form onSubmit={this.onSubmit}>
+      <form className="task-add" onSubmit={this.onSubmit}>
         <input type="text" value={this.state.name} onChange={this.onChangeName}/>
-        <input className="btn" type="submit" value="Create new task" disabled={!submitEnabled}/>
+        <button className="btn" type="submit"  disabled={!submitEnabled}>
+          <span className="fa fa-plus"/> Create new task
+        </button>
       </form>
     )
   }

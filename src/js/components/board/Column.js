@@ -5,6 +5,7 @@ class Column extends Component {
 
   static propTypes = {
     column: PropTypes.object.isRequired,
+    onChangeColumn: PropTypes.func,
 
     connectDropTarget: PropTypes.func.isRequired,
     isOver: PropTypes.bool.isRequired,
@@ -20,27 +21,40 @@ class Column extends Component {
     if (canDrop) dropZoneClass += " canDrop";
 
     return (
-      <div className="column">
-        <div className="column-info">
-          {column.name}
+      connectDropTarget(
+        <div className="column">
+          <div className="column-info">
+            {column.name}
+          </div>
+          <div className="column-content">
+            {children}
+          </div>
+          <div className={dropZoneClass}>
+            {isActive ? 'Release to drop' : 'Drag a task here'}
+          </div>
         </div>
-        <div className="column-content">
-          {children}
-        </div>
-        {connectDropTarget(<div className={dropZoneClass}>
-          {isActive ? 'Release to drop' : 'Drag a task here'}
-        </div>)}
-      </div>
-    )
+      )
+    );
   }
 
 }
 
 const boxTarget = {
-  drop(props) {
-    const {column} = props;
-    return column;
+
+  hover(props, monitor) {
+    const task = monitor.getItem();
+    const column = props.column;
+
+    if (task.column === column.id) {
+      return;
+    }
+
+    if (props.onChangeColumn) {
+      props.onChangeColumn(task, column);
+    }
+
   }
+
 };
 
 const collect = (connect, monitor) => ({

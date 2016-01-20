@@ -2,6 +2,7 @@
   "name": "react-kanban",
   "dependencies": {
     "component-emitter": "^1.2.0",
+    "font-awesome": "^4.5.0",
     "lodash": "^4.0.0",
     "moment": "^2.11.1",
     "react": "^0.14.6",
