@@ -84,4 +84,19 @@ const finalCreateStore = compose(
   DevTools.instrument()
 )(createStore);
 
-export default finalCreateStore(reducer)
+const state = readStateFromLocalStorage() || initialState;
+const store = finalCreateStore(reducer, state);
+
+store.subscribe(() => {
+  window.localStorage.setItem("redux", JSON.stringify(store.getState().toJS()));
+});
+
+function readStateFromLocalStorage() {
+  try {
+    return Immutable.fromJS(JSON.parse(window.localStorage.getItem("redux")));
+  } catch(e) {
+    console.warn("Error reading state from localStorage", e);
+  }
+}
+
+export default store;
