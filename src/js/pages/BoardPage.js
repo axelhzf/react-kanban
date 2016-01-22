@@ -36,16 +36,15 @@ class BoardPage extends React.Component {
 
   render() {
     const {
-      columns,tasks,
-      onCreateTask,
-      onMoveTaskToColumn
+      columns, tasks, newTaskName,
+      onCreateTask, onMoveTaskToColumn, onNewTaskNameChange
       } = this.props;
 
     const tasksByColumns = tasks.groupBy((task) => task.get("column"));
 
     return (
       <div>
-        <AddTaskInput onAddTask={onCreateTask}/>
+        <AddTaskInput onAddTask={onCreateTask} value={newTaskName} onChangeValue={onNewTaskNameChange}/>
         <Board>
           {
             columns.map(column => (
@@ -64,23 +63,27 @@ class BoardPage extends React.Component {
 const mapStateToProps = (state) => {
   return {
     columns: state.get("columns"),
-    tasks: state.get("tasks")
+    tasks: state.get("tasks"),
+    newTaskName: state.get("newTaskName")
   }
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     onCreateTask: (task) => {
-      dispatch({type: "CREATE_TASK", task})
+      dispatch({type: "CREATE_TASK", task});
     },
     onDeleteTask: (task) => {
-      dispatch({type: "DELETE_TASK", task})
+      dispatch({type: "DELETE_TASK", task});
     },
     onMoveTaskToColumn: (task, column) => {
-      dispatch({type: "MOVE_TASK_TO_COLUMN", task, column})
+      dispatch({type: "MOVE_TASK_TO_COLUMN", task, column});
     },
     onMoveTaskNextToTask: (fromTask, toTask) => {
-      dispatch({type: "MOVE_TASK_NEXT_TO_TASK", fromTask, toTask: toTask})
+      dispatch({type: "MOVE_TASK_NEXT_TO_TASK", fromTask, toTask: toTask});
+    },
+    onNewTaskNameChange: (name) => {
+      dispatch({type: "NEW_TASK_NAME_CHANGE", name});
     }
   }
 };
